@@ -48,21 +48,23 @@ The product supports multiple independent trips without mixing their financial d
 ## Product Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/01-today-dashboard.jpeg" width="30%" alt="Jahiz Today dashboard" />
-  <img src="docs/screenshots/02-plan-overview.jpeg" width="30%" alt="Jahiz plan overview" />
-  <img src="docs/screenshots/07-moves.jpeg" width="30%" alt="Jahiz decision moves" />
+  <img src="docs/screenshots/01-today-dashboard.jpeg" width="47%" alt="Jahiz Today dashboard" />
+  <img src="docs/screenshots/02-plan-overview.jpeg" width="47%" alt="Jahiz plan overview" />
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/03-ready-money.jpeg" width="30%" alt="Ready Money calculation" />
-  <img src="docs/screenshots/04-commitments.jpeg" width="30%" alt="Commitments and installment plans" />
-  <img src="docs/screenshots/06-payments.jpeg" width="30%" alt="Booking payments tracking" />
+  <img src="docs/screenshots/03-ready-money.jpeg" width="47%" alt="Ready Money calculation" />
+  <img src="docs/screenshots/04-commitments.jpeg" width="47%" alt="Commitments and installment plans" />
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/05-trip-costs.jpeg" width="31%" alt="Trip costs planning" />
+  <img src="docs/screenshots/05-trip-costs.jpeg" width="47%" alt="Trip costs planning" />
+  <img src="docs/screenshots/06-payments.jpeg" width="47%" alt="Booking payments tracking" />
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/07-moves.jpeg" width="47%" alt="Jahiz decision engine and recommended moves" />
+</p>
 ## Key Features
 
 ### Travel workspace

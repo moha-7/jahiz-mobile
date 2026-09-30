@@ -11,7 +11,7 @@
     "@jahiz/i18n": "0.1.0-alpha.6",
     "@jahiz/ui": "0.1.0-alpha.4",
     "@lingui/core": "6.5.0",
-    "@lingui/react": "6.5.0",
+    "@lingui/react": "6.8.0",
     "@shopify/flash-list": "2.0.2",
     "@tamagui/animations-react-native": "^2.4.6",
     "@tamagui/config": "2.4.6",

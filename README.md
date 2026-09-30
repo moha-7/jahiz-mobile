@@ -1,4 +1,4 @@
-# Jahiz | جاهز
+﻿# Jahiz | جاهز
 
 **A bilingual mobile platform for travel-readiness and financial decision-making.**
 

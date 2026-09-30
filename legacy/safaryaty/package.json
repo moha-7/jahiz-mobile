@@ -17,7 +17,7 @@
     "qa:release": "node scripts/qa-release-gate.mjs"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "4.3.4",
+    "@vitejs/plugin-react": "6.1.1",
     "vite": "5.4.11",
     "react": "18.3.1",
     "react-dom": "18.3.1"

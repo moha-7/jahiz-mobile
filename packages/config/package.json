@@ -1,0 +1,8 @@
+{
+    "name":  "@jahiz/config",
+    "version":  "0.1.0-alpha.4",
+    "private":  true,
+    "type":  "module",
+    "main":  "./src/index.ts",
+    "types":  "./src/index.ts"
+}

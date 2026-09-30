@@ -1,0 +1,56 @@
+{
+  "name": "jahiz",
+  "version": "0.1.0-alpha.6",
+  "private": true,
+  "description": "Jahiz travel-readiness product workspace",
+  "packageManager": "npm@10.9.8",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile:start": "npm --workspace @jahiz/mobile run start",
+    "mobile:android": "npm --workspace @jahiz/mobile run android",
+    "mobile:ios": "npm --workspace @jahiz/mobile run ios",
+    "mobile:web": "npm --workspace @jahiz/mobile run web",
+    "mobile:typecheck": "npm --workspace @jahiz/mobile run typecheck",
+    "mobile:lint": "npm --workspace @jahiz/mobile run lint",
+    "legacy:web:dev": "npm --prefix legacy/safaryaty run dev",
+    "legacy:web:build": "npm --prefix legacy/safaryaty run build",
+    "legacy:test": "npm --prefix legacy/safaryaty run test:all",
+    "legacy:backend:build": "npm --prefix legacy/safaryaty/backend run build",
+    "legacy:backend:test": "npm --prefix legacy/safaryaty/backend run test:external",
+    "test:source-encoding": "node scripts/check-source-encoding.mjs",
+    "test:core-parity": "node scripts/check-core-finance-parity.mjs",
+    "test:structure": "node scripts/check-workspace-structure.mjs",
+    "test:route-foundation": "node --experimental-strip-types --test packages/api-contracts/src/route.test.ts",
+    "test:trip-workspace": "node --experimental-strip-types --test packages/api-contracts/src/trip-workspace.test.ts",
+    "test": "npm run test:ci:static",
+    "docker:up": "docker compose up -d postgres",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:build:legacy-api": "docker build -f infrastructure/docker/legacy-backend.Dockerfile -t jahiz/legacy-api:0.1.0-alpha.4 legacy/safaryaty",
+    "mobile:start:tunnel": "npm --workspace @jahiz/mobile run start:tunnel",
+    "test:auth:contracts": "node --experimental-strip-types --test packages/api-contracts/src/auth-identity.test.ts scripts/jahiz-auth-principal.test.mjs scripts/jahiz-auth-runtime-selector.test.mjs scripts/jahiz-clerk-auth-adapter.test.mjs scripts/jahiz-clerk-mobile-adapter.test.ts scripts/jahiz-identity-schema-contract.test.mjs scripts/jahiz-mobile-account-session.test.ts scripts/jahiz-mobile-auth-contract.test.ts scripts/jahiz-mobile-auth-runtime-config.test.ts scripts/jahiz-mobile-auth-runtime-source-contract.test.mjs",
+    "test:api:integration": "node --test --test-concurrency=1 scripts/jahiz-postgres-repository.test.mjs scripts/jahiz-trip-lifecycle-repository.test.mjs scripts/jahiz-trip-lifecycle-http.test.mjs scripts/jahiz-trip-tombstone-repository.test.mjs scripts/jahiz-trip-tombstone-http.test.mjs scripts/jahiz-trip-mutation-identity.test.mjs scripts/jahiz-multi-trip-account-acceptance.test.mjs scripts/jahiz-identity-repository.test.mjs scripts/jahiz-clerk-account-resolution-e2e.test.mjs scripts/jahiz-account-session-e2e.test.mjs scripts/jahiz-http-bff.test.mjs",
+    "test:ci:static": "npm run test:source-encoding && npm run test:structure && npm run test:core-parity && npm run test:route-foundation && npm run test:trip-workspace && npm run test:auth:contracts && npm run test:active:regression && npm run mobile:typecheck && npm run mobile:lint",
+    "db:migrate:ci": "node scripts/jahiz-apply-postgres-migrations.mjs",
+    "test:production:migrations": "node --test --test-concurrency=1 scripts/jahiz-production-migration-safety.test.mjs",
+    "test:production:persistence": "node --test --test-concurrency=1 scripts/jahiz-production-persistence-acceptance.test.mjs",
+    "test:production:recovery": "node --test --test-concurrency=1 scripts/jahiz-production-recovery-acceptance.test.mjs",
+    "test:ci": "npm run test:ci:static && npm run db:migrate:ci && npm run test:production:migrations && npm run test:api:integration && npm run test:production:persistence && npm run test:production:recovery && npm run test:shadow:integration",
+    "test:active:regression": "node scripts/jahiz-run-active-tests.mjs regression",
+    "test:shadow:integration": "node scripts/jahiz-run-active-tests.mjs shadow-channel"
+  },
+  "overrides": {},
+  "devDependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-native": "^0.86.3",
+    "react-native-reanimated": "^4.5.1",
+    "react-native-worklets": "^0.10.1"
+  }
+}

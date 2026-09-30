@@ -1,0 +1,234 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.22.3"
+
+jobs:
+  quality:
+    name: Quality / Domain / Auth / Mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit
+
+      - name: Static CI gate
+        run: npm run test:ci:static
+
+
+  postgres-integration:
+    name: PostgreSQL / API / Identity
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: jahiz_ci
+          POSTGRES_PASSWORD: jahiz_ci_password
+          POSTGRES_DB: jahiz_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U jahiz_ci -d jahiz_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: jahiz_ci
+      POSTGRES_PASSWORD: jahiz_ci_password
+      POSTGRES_DB: jahiz_ci
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit
+
+      - name: Apply migrations
+        run: npm run db:migrate:ci
+
+      - name: Production migration safety
+        run: npm run test:production:migrations
+
+      - name: API / Identity integration
+        run: npm run test:api:integration
+
+      - name: Production persistence
+        run: npm run test:production:persistence
+
+      - name: Ensure PostgreSQL backup tools
+        run: |
+          if ! command -v pg_dump >/dev/null 2>&1 || ! command -v pg_restore >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
+          fi
+          pg_dump --version
+          pg_restore --version
+
+      - name: Production recovery drill
+        run: npm run test:production:recovery
+
+      - name: Shadow channel integration
+        run: npm run test:shadow:integration
+
+
+  security:
+    name: Security Policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit
+
+      - name: Block critical production vulnerabilities
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          max_attempts=3
+
+          for attempt in $(seq 1 "$max_attempts"); do
+            output_file="$(mktemp)"
+
+            set +e
+            timeout 90s npm audit --omit=dev --audit-level=critical >"$output_file" 2>&1
+            status=$?
+            set -e
+
+            cat "$output_file"
+
+            if [ "$status" -eq 0 ]; then
+              rm -f "$output_file"
+              exit 0
+            fi
+
+            if [ "$status" -eq 124 ] || grep -Eqi '503 Service Unavailable|audit endpoint returned an error|429 Too Many Requests|ECONNRESET|ECONNREFUSED|ETIMEDOUT|ERR_SOCKET_TIMEOUT|EAI_AGAIN|ENOTFOUND|ENETUNREACH|EHOSTUNREACH' "$output_file"; then
+              rm -f "$output_file"
+
+              if [ "$attempt" -lt "$max_attempts" ]; then
+                echo "npm audit unavailable (attempt $attempt/$max_attempts); retrying in 10 seconds."
+                sleep 10
+                continue
+              fi
+
+              echo "npm audit remained unavailable after $max_attempts attempts; failing closed."
+              exit 1
+            fi
+
+            rm -f "$output_file"
+            exit "$status"
+          done
+
+          echo "npm audit retry loop exited unexpectedly; failing closed."
+          exit 1
+
+
+  legacy:
+    name: Legacy Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            legacy/safaryaty/package-lock.json
+            legacy/safaryaty/backend/package-lock.json
+
+      - name: Install legacy web
+        run: npm ci --prefix legacy/safaryaty
+
+      - name: Install legacy backend
+        run: npm ci --prefix legacy/safaryaty/backend
+
+      - name: Legacy tests
+        run: npm run test:all --prefix legacy/safaryaty
+
+      - name: Generate SQLite Prisma client
+        run: npm run prisma:generate --prefix legacy/safaryaty/backend
+
+      - name: Generate PostgreSQL Prisma client
+        run: npm run prisma:postgres:generate --prefix legacy/safaryaty/backend
+
+      - name: Build legacy backend
+        run: npm run build --prefix legacy/safaryaty/backend
+
+      - name: Verify legacy backend artifact
+        run: test -f legacy/safaryaty/backend/dist/server.js
+
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate legacy API image
+        uses: docker/build-push-action@v6
+        with:
+          context: legacy/safaryaty
+          file: infrastructure/docker/legacy-backend.Dockerfile
+          push: false
+          tags: jahiz/legacy-api:ci

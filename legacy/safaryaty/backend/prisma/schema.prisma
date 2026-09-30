@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum TripStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+  ONE_TIME
+  TRIP_TOTAL
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum SuggestionStatus {
+  PENDING
+  ACCEPTED
+  IGNORED
+}
+
+enum SourceType {
+  MANUAL
+  SUGGESTION
+  PRESET
+  SYSTEM
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  name               String
+  email              String   @unique
+  passwordHash       String
+  authProvider       String   @default("password")
+  googleId           String?  @unique
+  emailVerified      Boolean  @default(false)
+  profileImage       String?
+  countryOfResidence String?
+  nationality        String?
+  preferredCurrency  String   @default("AED")
+  preferredLanguage  String   @default("en")
+  travelFrequency    String?
+  travelPurpose      String?
+  defaultTravelStyle String   @default("Balanced")
+  role               Role     @default(USER)
+  plan               Plan     @default(FREE)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  sessions           Session[]
+  trips              Trip[]
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Trip {
+  id             String     @id @default(cuid())
+  userId         String
+  title          String
+  status         TripStatus @default(DRAFT)
+  fromCountry    String?
+  fromAirport    String?
+  toCountry      String?
+  toAirport      String?
+  departureDate  DateTime?
+  returnDate     DateTime?
+  travelers      Int        @default(1)
+  incomeCurrency String     @default("AED")
+  tripCurrency   String     @default("AED")
+  displayCurrency String?
+  exchangeRate   Float      @default(1)
+  rateMode       String     @default("MANUAL")
+  travelStyle    String     @default("Balanced")
+  notes          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  incomes        Income[]
+  lifeCosts      LifeCost[]
+  installments   Installment[]
+  tripCosts      TripCost[]
+  expenses       Expense[]
+  suggestions    PresetSuggestion[]
+  paymentMarks   PaymentMark[]
+  financeProfile TripFinanceProfile?
+
+  @@index([userId, status])
+}
+
+
+model TripFinanceProfile {
+  tripId           String   @id
+  startingSavings  Float    @default(0)
+  supportMoney     Float    @default(0)
+  safetyReserve    Float    @default(0)
+  reserveEnabled   Boolean  @default(false)
+  returnWithZero   Boolean  @default(true)
+  rateBookJson     String?
+  schemaVersion    Int      @default(1)
+  normalizedAt     DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  trip             Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([normalizedAt])
+}
+
+model Income {
+  id           String    @id @default(cuid())
+  tripId       String
+  title        String
+  amount       Float
+  currency     String
+  frequency    Frequency @default(MONTHLY)
+  startDate    DateTime?
+  endDate      DateTime?
+  expectedDate DateTime?
+  source       SourceType @default(MANUAL)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  trip         Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model LifeCost {
+  id        String     @id @default(cuid())
+  tripId    String
+  title     String
+  category  String?
+  amount    Float
+  currency  String
+  frequency Frequency  @default(MONTHLY)
+  startDate DateTime?
+  endDate   DateTime?
+  dueDate   DateTime?
+  source    SourceType @default(MANUAL)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  trip      Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model Installment {
+  id              String        @id @default(cuid())
+  tripId          String
+  title           String
+  amount          Float
+  currency        String
+  frequency       Frequency     @default(MONTHLY)
+  startDate       DateTime?
+  endDate         DateTime?
+  remainingMonths Int?
+  status          PaymentStatus @default(UNPAID)
+  paidDate        DateTime?
+  source          SourceType    @default(MANUAL)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  trip            Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model TripCost {
+  id        String        @id @default(cuid())
+  tripId    String
+  title     String
+  category  String
+  amount    Float
+  currency  String
+  timing    String?
+  frequency Frequency     @default(TRIP_TOTAL)
+  priority  String?
+  status    PaymentStatus @default(UNPAID)
+  dueDate   DateTime?
+  paidDate  DateTime?
+  source    SourceType    @default(MANUAL)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  trip      Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model Expense {
+  id         String   @id @default(cuid())
+  tripId     String
+  title      String
+  category   String
+  amount     Float
+  currency   String
+  amountBase Float
+  date       DateTime
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model PresetSuggestion {
+  id              String           @id @default(cuid())
+  tripId          String
+  category        String
+  currentAmount   Float
+  suggestedAmount Float
+  currency        String
+  difference      Float
+  message         String
+  status          SuggestionStatus @default(PENDING)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  trip            Trip             @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, status])
+}
+
+
+model PaymentMark {
+  id         String        @id @default(cuid())
+  tripId     String
+  paymentKey String
+  status     PaymentStatus @default(PAID)
+  paidDate   DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  trip       Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, paymentKey])
+  @@index([tripId, status])
+}
+
+model ExternalDataSnapshot {
+  id           String   @id @default(cuid())
+  provider     String
+  resourceType String
+  resourceKey  String
+  payloadJson  String
+  sourceAsOf   DateTime?
+  fetchedAt    DateTime @default(now())
+  expiresAt    DateTime?
+  confidence   String   @default("medium")
+  stale        Boolean  @default(false)
+  version      String?
+  lastError    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([provider, resourceType, resourceKey])
+  @@index([resourceType, resourceKey])
+  @@index([expiresAt])
+}

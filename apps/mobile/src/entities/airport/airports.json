@@ -1,0 +1,90 @@
+[
+  {
+    "countryCode": "AE",
+    "countryName": "United Arab Emirates",
+    "countryNameAr": "الإمارات",
+    "cityName": "Dubai",
+    "cityNameAr": "دبي",
+    "airportCode": "DXB",
+    "airportName": "Dubai International Airport",
+    "airportNameAr": "مطار دبي الدولي",
+    "currency": "AED"
+  },
+  {
+    "countryCode": "AE",
+    "countryName": "United Arab Emirates",
+    "countryNameAr": "الإمارات",
+    "cityName": "Abu Dhabi",
+    "cityNameAr": "أبوظبي",
+    "airportCode": "AUH",
+    "airportName": "Zayed International Airport",
+    "airportNameAr": "مطار زايد الدولي",
+    "currency": "AED"
+  },
+  {
+    "countryCode": "AE",
+    "countryName": "United Arab Emirates",
+    "countryNameAr": "الإمارات",
+    "cityName": "Sharjah",
+    "cityNameAr": "الشارقة",
+    "airportCode": "SHJ",
+    "airportName": "Sharjah International Airport",
+    "airportNameAr": "مطار الشارقة الدولي",
+    "currency": "AED"
+  },
+  {
+    "countryCode": "BH",
+    "countryName": "Bahrain",
+    "countryNameAr": "البحرين",
+    "cityName": "Manama",
+    "cityNameAr": "المنامة",
+    "airportCode": "BAH",
+    "airportName": "Bahrain International Airport",
+    "airportNameAr": "مطار البحرين الدولي",
+    "currency": "BHD"
+  },
+  {
+    "countryCode": "EG",
+    "countryName": "Egypt",
+    "countryNameAr": "مصر",
+    "cityName": "Cairo",
+    "cityNameAr": "القاهرة",
+    "airportCode": "CAI",
+    "airportName": "Cairo International Airport",
+    "airportNameAr": "مطار القاهرة الدولي",
+    "currency": "EGP"
+  },
+  {
+    "countryCode": "SA",
+    "countryName": "Saudi Arabia",
+    "countryNameAr": "السعودية",
+    "cityName": "Jeddah",
+    "cityNameAr": "جدة",
+    "airportCode": "JED",
+    "airportName": "King Abdulaziz International Airport",
+    "airportNameAr": "مطار الملك عبدالعزيز الدولي",
+    "currency": "SAR"
+  },
+  {
+    "countryCode": "SA",
+    "countryName": "Saudi Arabia",
+    "countryNameAr": "السعودية",
+    "cityName": "Riyadh",
+    "cityNameAr": "الرياض",
+    "airportCode": "RUH",
+    "airportName": "King Khalid International Airport",
+    "airportNameAr": "مطار الملك خالد الدولي",
+    "currency": "SAR"
+  },
+  {
+    "countryCode": "QA",
+    "countryName": "Qatar",
+    "countryNameAr": "قطر",
+    "cityName": "Doha",
+    "cityNameAr": "الدوحة",
+    "airportCode": "DOH",
+    "airportName": "Hamad International Airport",
+    "airportNameAr": "مطار حمد الدولي",
+    "currency": "QAR"
+  }
+]

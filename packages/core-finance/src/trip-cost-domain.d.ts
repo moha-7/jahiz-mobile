@@ -1,0 +1,12 @@
+export type TripCostFrequency = "trip-total" | "one-time" | "daily" | "weekly" | "monthly" | "yearly";
+export const TRIP_COST_CATEGORIES: ReadonlyArray<{id:string;label:string;priority:"MUST"|"FLEXIBLE"|"OPTIONAL";timing:"before"|"during"|"after";estimateKey:string|null}>;
+export function canonicalTripCategory(value: unknown, fallback?: string): string;
+export function tripCostCategoryLabel(value: unknown, fallback?: string): string;
+export function suggestionSourceKey(category: unknown): string;
+export function normalizeTripCostFrequency(value: unknown, costType?: unknown): TripCostFrequency;
+export function tripDayCount(trip?: Record<string, unknown>): number;
+export function tripCostOccurrenceDates(item?: Record<string, unknown>, trip?: Record<string, unknown>, max?: number): string[];
+export function tripCostEffectiveTotal(item?: Record<string, unknown>, trip?: Record<string, unknown>): number;
+export function tripCostPaymentOccurrences(item?: Record<string, unknown>, trip?: Record<string, unknown>): Array<{date:string;amount:number;units:number;frequency:TripCostFrequency}>;
+export function categoryTotals(items?: Array<Record<string, unknown>>): Record<string,number>;
+export function dedupeSuggestionsByCategory(items?: Array<Record<string, unknown>>): Array<Record<string, unknown>>;

@@ -1,0 +1,11 @@
+{
+  "name": "@jahiz/i18n",
+  "version": "0.1.0-alpha.6",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@jahiz/config": "0.1.0-alpha.4"
+  }
+}

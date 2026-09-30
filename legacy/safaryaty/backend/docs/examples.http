@@ -1,0 +1,51 @@
+### Health
+GET http://127.0.0.1:4000/api/health
+
+### Register
+POST http://127.0.0.1:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Mohamed",
+  "email": "mo@example.com",
+  "password": "password123",
+  "countryOfResidence": "United Arab Emirates",
+  "nationality": "Egypt",
+  "preferredCurrency": "AED",
+  "preferredLanguage": "en",
+  "travelFrequency": "sometimes",
+  "travelPurpose": "Family Visit",
+  "defaultTravelStyle": "Balanced"
+}
+
+### Login
+POST http://127.0.0.1:4000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "mo@example.com",
+  "password": "password123"
+}
+
+### Me
+GET http://127.0.0.1:4000/api/auth/me
+
+### Create Draft Trip
+POST http://127.0.0.1:4000/api/trips
+Content-Type: application/json
+
+{
+  "title": "Dubai to Cairo",
+  "status": "DRAFT",
+  "fromCountry": "United Arab Emirates",
+  "fromAirport": "DXB",
+  "toCountry": "Egypt",
+  "toAirport": "CAI",
+  "departureDate": "2026-07-15",
+  "returnDate": "2026-07-25",
+  "travelers": 1,
+  "incomeCurrency": "AED",
+  "tripCurrency": "EGP",
+  "exchangeRate": 13.2,
+  "travelStyle": "Balanced"
+}

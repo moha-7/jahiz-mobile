@@ -1,0 +1,14 @@
+.git
+.github
+**/node_modules
+**/dist
+**/.expo
+**/.env
+**/.env.*
+!**/.env.example
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/uploads
+**/uploads-staging
+**/hotfix-backup-*

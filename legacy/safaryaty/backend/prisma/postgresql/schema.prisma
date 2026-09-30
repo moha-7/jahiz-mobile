@@ -1,0 +1,332 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/postgresql-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum TripStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+  ONE_TIME
+  TRIP_TOTAL
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum SuggestionStatus {
+  PENDING
+  ACCEPTED
+  IGNORED
+}
+
+enum SourceType {
+  MANUAL
+  SUGGESTION
+  PRESET
+  SYSTEM
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  name               String
+  email              String   @unique
+  passwordHash       String
+  authProvider       String   @default("password")
+  googleId           String?  @unique
+  emailVerified      Boolean  @default(false)
+  profileImage       String?
+  countryOfResidence String?
+  nationality        String?
+  preferredCurrency  String   @default("AED") @db.Char(3)
+  preferredLanguage  String   @default("en")
+  travelFrequency    String?
+  travelPurpose      String?
+  defaultTravelStyle String   @default("Balanced")
+  role               Role     @default(USER)
+  plan               Plan     @default(FREE)
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(3)
+
+  sessions           Session[]
+  trips              Trip[]
+
+  @@index([createdAt])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime  @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([userId, revokedAt, expiresAt])
+}
+
+model Trip {
+  id              String     @id @default(cuid())
+  userId          String
+  title           String
+  status          TripStatus @default(DRAFT)
+  fromCountry     String?
+  fromAirport     String?
+  toCountry       String?
+  toAirport       String?
+  departureDate   DateTime?  @db.Date
+  returnDate      DateTime?  @db.Date
+  travelers       Int        @default(1)
+  incomeCurrency  String     @default("AED") @db.Char(3)
+  tripCurrency    String     @default("AED") @db.Char(3)
+  displayCurrency String?    @db.Char(3)
+  exchangeRate    Decimal    @default(1) @db.Decimal(20, 10)
+  rateMode        String     @default("MANUAL")
+  travelStyle     String     @default("Balanced")
+  notes           String?    @db.Text
+  createdAt       DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime   @updatedAt @db.Timestamptz(3)
+
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  incomes        Income[]
+  lifeCosts      LifeCost[]
+  installments   Installment[]
+  tripCosts      TripCost[]
+  expenses       Expense[]
+  suggestions    PresetSuggestion[]
+  paymentMarks   PaymentMark[]
+  financeProfile TripFinanceProfile?
+
+  @@index([userId, status])
+  @@index([userId, status, updatedAt])
+  @@index([toCountry, departureDate])
+}
+
+model TripFinanceProfile {
+  tripId           String   @id
+  startingSavings  Decimal  @default(0) @db.Decimal(19, 4)
+  supportMoney     Decimal  @default(0) @db.Decimal(19, 4)
+  safetyReserve    Decimal  @default(0) @db.Decimal(19, 4)
+  reserveEnabled   Boolean  @default(false)
+  returnWithZero   Boolean  @default(true)
+  rateBookJson     String?  @db.Text
+  schemaVersion    Int      @default(1)
+  normalizedAt     DateTime? @db.Timestamptz(3)
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+
+  trip             Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([normalizedAt])
+  @@index([schemaVersion])
+}
+
+model Income {
+  id           String    @id @default(cuid())
+  tripId       String
+  title        String
+  amount       Decimal   @db.Decimal(19, 4)
+  currency     String    @db.Char(3)
+  frequency    Frequency @default(MONTHLY)
+  startDate    DateTime? @db.Date
+  endDate      DateTime? @db.Date
+  expectedDate DateTime? @db.Date
+  source       SourceType @default(MANUAL)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(3)
+
+  trip         Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([tripId, expectedDate])
+}
+
+model LifeCost {
+  id         String     @id @default(cuid())
+  tripId     String
+  title      String
+  category   String?
+  amount     Decimal    @db.Decimal(19, 4)
+  currency   String     @db.Char(3)
+  frequency  Frequency  @default(MONTHLY)
+  startDate  DateTime?  @db.Date
+  endDate    DateTime?  @db.Date
+  dueDate    DateTime?  @db.Date
+  source     SourceType @default(MANUAL)
+  createdAt  DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime   @updatedAt @db.Timestamptz(3)
+
+  trip       Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([tripId, dueDate])
+  @@index([tripId, category])
+}
+
+model Installment {
+  id              String        @id @default(cuid())
+  tripId          String
+  title           String
+  amount          Decimal       @db.Decimal(19, 4)
+  currency        String        @db.Char(3)
+  frequency       Frequency     @default(MONTHLY)
+  startDate       DateTime?     @db.Date
+  endDate         DateTime?     @db.Date
+  remainingMonths Int?
+  status          PaymentStatus @default(UNPAID)
+  paidDate        DateTime?     @db.Timestamptz(3)
+  source          SourceType    @default(MANUAL)
+  createdAt       DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(3)
+
+  trip            Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([tripId, status, endDate])
+}
+
+model TripCost {
+  id         String        @id @default(cuid())
+  tripId     String
+  title      String
+  category   String
+  amount     Decimal       @db.Decimal(19, 4)
+  currency   String        @db.Char(3)
+  timing     String?
+  frequency  Frequency     @default(TRIP_TOTAL)
+  priority   String?
+  status     PaymentStatus @default(UNPAID)
+  dueDate    DateTime?     @db.Date
+  paidDate   DateTime?     @db.Timestamptz(3)
+  source     SourceType    @default(MANUAL)
+  createdAt  DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime      @updatedAt @db.Timestamptz(3)
+
+  trip       Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([tripId, status, dueDate])
+  @@index([tripId, category])
+}
+
+model Expense {
+  id         String   @id @default(cuid())
+  tripId     String
+  title      String
+  category   String
+  amount     Decimal  @db.Decimal(19, 4)
+  currency   String   @db.Char(3)
+  amountBase Decimal  @db.Decimal(19, 4)
+  date       DateTime @db.Date
+  note       String?  @db.Text
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([tripId, date])
+  @@index([tripId, category])
+}
+
+model PresetSuggestion {
+  id              String           @id @default(cuid())
+  tripId          String
+  category        String
+  currentAmount   Decimal          @db.Decimal(19, 4)
+  suggestedAmount Decimal          @db.Decimal(19, 4)
+  currency        String           @db.Char(3)
+  difference      Decimal          @db.Decimal(19, 4)
+  message         String
+  status          SuggestionStatus @default(PENDING)
+  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
+
+  trip            Trip             @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, status])
+  @@index([tripId, category, status])
+}
+
+model PaymentMark {
+  id         String        @id @default(cuid())
+  tripId     String
+  paymentKey String
+  status     PaymentStatus @default(PAID)
+  paidDate   DateTime?     @db.Timestamptz(3)
+  createdAt  DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime      @updatedAt @db.Timestamptz(3)
+
+  trip       Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, paymentKey])
+  @@index([tripId, status])
+  @@index([tripId, updatedAt])
+}
+
+model ExternalDataSnapshot {
+  id           String   @id @default(cuid())
+  provider     String
+  resourceType String
+  resourceKey  String
+  payloadJson  String   @db.Text
+  sourceAsOf   DateTime? @db.Timestamptz(3)
+  fetchedAt    DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt    DateTime? @db.Timestamptz(3)
+  confidence   String   @default("medium")
+  stale        Boolean  @default(false)
+  version      String?
+  lastError    String?  @db.Text
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([provider, resourceType, resourceKey])
+  @@index([resourceType, resourceKey])
+  @@index([expiresAt])
+  @@index([provider, stale, expiresAt])
+}
+
+model MigrationReceipt {
+  id                String   @id
+  bundleChecksum    String   @unique
+  targetFingerprint String
+  appVersion        String?
+  sessionsIncluded  Boolean  @default(false)
+  verifiedAt        DateTime @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([verifiedAt])
+}

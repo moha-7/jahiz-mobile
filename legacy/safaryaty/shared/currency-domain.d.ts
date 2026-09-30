@@ -1,0 +1,14 @@
+export const CURRENCY_DOMAIN_VERSION: string;
+export function normalizeCurrencyCode(value: unknown, fallback?: string): string;
+export function normalizeRate(value: unknown, fallback?: number): number;
+export function currencyPairKey(from: unknown, to: unknown): string;
+export function rateFromBook(rateBook: Record<string, number>, from: unknown, to: unknown): number;
+export function addRateToBook(rateBook: Record<string, number>, from: unknown, to: unknown, rate: unknown): Record<string, number>;
+export function convertWithRate(amount: unknown, rate: unknown): number | null;
+export function convertFromBook(amount: unknown, from: unknown, to: unknown, rateBook?: Record<string, number>): number | null;
+export function buildCurrencyContext(input?: any): any;
+export function incomeToTrip(amount: unknown, context: any): number | null;
+export function tripToIncome(amount: unknown, context: any): number | null;
+export function tripToDisplay(amount: unknown, context: any): number | null;
+export function convertTripCurrencyValues(input?: any): any;
+export function convertIncomeCurrencyValues(input?: any): any;

@@ -1,0 +1,26 @@
+name: Feature vertical slice
+description: Plan a user-facing Jahiz feature from discovery through QA
+title: "feat: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Ready checklist
+      options:
+        - label: English and Arabic copy exists
+        - label: RTL behavior is defined
+        - label: Loading, empty, error and validation states are defined
+        - label: API/data requirements are defined

@@ -1,0 +1,26 @@
+{
+  "name": "safaryaty-v4-9",
+  "version": "4.29.52.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:setup": "cd backend && npm install && npm run prisma:generate && npm run prisma:migrate",
+    "dev:full": "echo Run backend and frontend in two terminals: npm run backend:dev + npm run dev",
+    "test:core": "node --test src/engine.test.js src/payments.test.js src/canTravel.test.js src/decision-engine.test.js src/metadata.test.js src/costProfiles.test.js src/externalDataAdapters.test.js src/crossEngineParity.test.js src/fx.test.js src/currency-domain.test.js src/currency-flow-contract.test.js src/actionFlow.test.js src/countrySnapshotContract.test.js src/fxSnapshotContract.test.js src/wizardMoneyLayout.test.js src/v42941UiContract.test.js src/recommendation-engine.test.js src/recommendationContract.test.js src/finance-ledger.test.js src/financeTruthContract.test.js src/uiModernization.test.js src/uiConsistency.test.js src/trip-cost-domain.test.js src/suggestionTruthContract.test.js src/layoutDeepLink.test.js src/notifications.test.js src/notificationContract.test.js src/tripFinanceProfile.test.js src/databaseNormalizationContract.test.js src/postgresqlReadiness.test.js src/postgresqlCutover.test.js src/costEstimateCurrency.test.js src/suggestionCurrencyParityContract.test.js src/backendBuildGateContract.test.js",
+    "test:stability": "node scripts/stability-smoke.mjs",
+    "test:all": "npm run test:core && npm run test:stability && npm run build",
+    "routes:update": "node scripts/update-route-data-from-ourairports.mjs",
+    "qa:release": "node scripts/qa-release-gate.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "vite": "5.4.11",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {}
+}

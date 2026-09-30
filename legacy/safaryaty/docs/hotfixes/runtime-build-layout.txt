@@ -1,0 +1,19 @@
+Safaryaty runtime build-layout hotfix
+
+Purpose
+- Build backend/src directly into backend/dist.
+- Produce backend/dist/server.js.
+- Preserve relative imports from compiled modules to the root project/shared directory.
+- Remove stale dist output before every build.
+
+Changes
+- Adds backend/tsconfig.build.json.
+- Adds backend/scripts/clean-dist.mjs.
+- Changes only backend package.json scripts.build.
+
+Not changed
+- Databases or imported rows.
+- Prisma schemas or migrations.
+- Verification receipts or checksums.
+- Environment files.
+- Finance, payment, auth, route, or UI logic.

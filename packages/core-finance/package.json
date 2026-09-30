@@ -1,0 +1,18 @@
+{
+    "name":  "@jahiz/core-finance",
+    "version":  "0.1.0-alpha.4",
+    "private":  true,
+    "type":  "module",
+    "main":  "./src/index.js",
+    "types":  "./src/index.d.ts",
+    "exports":  {
+                    ".":  {
+                              "types":  "./src/index.d.ts",
+                              "import":  "./src/index.js"
+                          },
+                    "./*":  {
+                                "types":  "./src/*.d.ts",
+                                "import":  "./src/*.js"
+                            }
+                }
+}

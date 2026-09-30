@@ -1,0 +1,10 @@
+Safaryaty built-server path hotfix
+
+Fixes the mismatch between TypeScript output at backend/dist/src/server.js and startup scripts that only searched for backend/dist/server.js.
+
+Changes only:
+- backend/scripts/run-postgresql-staging.mjs
+- backend/scripts/run-built-server.mjs (new)
+- backend/package.json start script
+
+Does not change database data, migrations, .env, finance formulas, migration receipts, or PostgreSQL safety checks.

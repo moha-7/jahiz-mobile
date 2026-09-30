@@ -1,0 +1,17 @@
+{
+  "name": "@jahiz/api",
+  "version": "0.1.0-alpha.6",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@clerk/backend": "^3.16.12",
+    "@jahiz/api-contracts": "*",
+    "fastify": "^5.0.0",
+    "pg": "^8.16.3"
+  },
+  "scripts": {
+    "start:dev": "node src/server.mjs",
+    "test:http": "node --experimental-strip-types --test ../../scripts/jahiz-http-bff.test.mjs",
+    "test:postgres": "node --test ../../scripts/jahiz-postgres-repository.test.mjs"
+  }
+}

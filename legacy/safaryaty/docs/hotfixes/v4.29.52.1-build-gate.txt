@@ -1,0 +1,20 @@
+Safaryaty v4.29.52.1 â€” Backend Build Gate Patch
+
+This patch changes source/version/test files only.
+It does NOT modify:
+- backend/prisma/dev.db
+- .env files
+- migrations
+- finance formulas
+- PaymentMark data
+
+PowerShell usage:
+
+1. Extract this patch ZIP.
+2. Open PowerShell in the extracted patch folder.
+3. Run:
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\apply-v4-29-52-1.ps1 -ProjectPath "C:\Users\Developer\Projects\safaryaty"
+
+4. Then run the commands printed by the script.

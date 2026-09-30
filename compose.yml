@@ -1,0 +1,63 @@
+name: jahiz
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jahiz-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jahiz}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jahiz_local_only}
+      POSTGRES_DB: ${POSTGRES_DB:-jahiz_local}
+    ports:
+      - "${POSTGRES_PORT:-55433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jahiz} -d ${POSTGRES_DB:-jahiz_local}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+    volumes:
+      - jahiz_postgres_data:/var/lib/postgresql/data
+    networks:
+      - jahiz_network
+
+  legacy-api:
+    profiles: ["legacy-staging"]
+    build:
+      context: ./legacy/safaryaty
+      dockerfile: ../../infrastructure/docker/legacy-backend.Dockerfile
+    image: jahiz/legacy-api:0.1.0-alpha.2
+    container_name: jahiz-legacy-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: staging
+      PORT: 4001
+      DATABASE_PROVIDER: postgresql
+      DATABASE_URL: file:/app/backend/prisma/dev.db
+      POSTGRES_DATABASE_URL: postgresql://${POSTGRES_USER:-jahiz}:${POSTGRES_PASSWORD:-jahiz_local_only}@postgres:5432/${POSTGRES_DB:-jahiz_local}
+      POSTGRES_TARGET_KIND: staging
+      POSTGRES_STAGING_ACK: ${POSTGRES_STAGING_ACK:-}
+      POSTGRES_VERIFICATION_RECEIPT: ${POSTGRES_VERIFICATION_RECEIPT:-/app/backend/verification/postgresql-staging-receipt.json}
+      APP_ORIGIN: ${APP_ORIGIN:-http://127.0.0.1:5173}
+      SESSION_COOKIE_NAME: jahiz_legacy_session
+      COOKIE_SAMESITE: lax
+      UPLOAD_DIR: /app/backend/uploads-staging
+    ports:
+      - "${LEGACY_API_PORT:-4001}:4001"
+    volumes:
+      - ./legacy/safaryaty/backend/verification:/app/backend/verification:ro
+      - jahiz_legacy_uploads:/app/backend/uploads-staging
+    networks:
+      - jahiz_network
+
+volumes:
+  jahiz_postgres_data:
+  jahiz_legacy_uploads:
+
+networks:
+  jahiz_network:
+    driver: bridge

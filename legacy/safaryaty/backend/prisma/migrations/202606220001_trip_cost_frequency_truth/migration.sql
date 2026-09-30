@@ -1,0 +1,3 @@
+-- v4.29.46: Frequency enum expansion is schema-level only on SQLite.
+-- SQLite stores Prisma enum values as TEXT, so no table rewrite is required.
+-- New accepted values: DAILY, WEEKLY, YEARLY.

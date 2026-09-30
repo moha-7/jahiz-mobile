@@ -1,0 +1,19 @@
+{
+  "name": "Safaryaty",
+  "short_name": "Safaryaty",
+  "description": "Plan smarter. Know if your trip is ready before you go.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/safaryaty-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
